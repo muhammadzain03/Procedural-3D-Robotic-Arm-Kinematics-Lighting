@@ -1,0 +1,157 @@
+================================================================
+           ASSIGNMENT DECLARATION & REFLECTION FILE
+================================================================
+
+----------------------------------------------------------------
+1. INTEGRITY PLEDGE & LEARNING INTENT
+----------------------------------------------------------------
+By submitting this file, I certify that the work in this
+assignment is my own original work. I understand that I am
+fully responsible for all content, code, and explanations
+submitted. I have documented all sources of assistance,
+including human collaborators, traditional resources, and
+Generative AI tools.
+
+INTENT PLEDGE: Before starting this assignment, my intention
+for using (or not using) AI tools to support my learning was:
+[X] I plan to use GenAI as an interactive tutor/study aid.
+[ ] I plan to use GenAI only for debugging or syntax help.
+[ ] I do not plan to use GenAI for this assignment.
+
+State briefly how you intended GenAI to support your learning:
+
+I use the same process on every project, including this
+procedural 3D robotic arm homework. I start by working through
+the problem myself. I write down what the program has to do,
+then I research it: course material, online sources, Stack
+Overflow, and other GitHub repos. I do not ask GenAI to explain
+the assignment until I already know what I am building and how
+I want to build it.
+
+After that, GenAI supports the work I already started. I give my
+notes to Cursor, using the Grok model, and ask it to turn those
+notes into a build plan. I then apply that plan myself: I write
+the code as far as I can from my own notes. I use GenAI again
+only to double-check what I wrote, not to replace that step.
+
+So the intent is that I own the understanding and the code.
+GenAI is there to organize a plan from my notes and to check
+my work afterward.
+
+NOTE: Failure to disclose the actual use of GenAI tools constitutes a
+breach of academic integrity and will be handled under Academic
+Misconduct procedures.
+
+----------------------------------------------------------------
+2. HUMAN COLLABORATORS
+----------------------------------------------------------------
+List names of any students you discussed high-level logic with,
+or TAs/instructors who assisted you.
+
+Sources:
+
+My tutorial TA, Katherine Hou, assisted me on how to approach
+this problem. I then found a solution based on that:
+
+1. Generate the arm geometry procedurally.
+2. Build the kinematic chain and joint interactions.
+3. Set up the camera.
+4. Add texturing and Phong lighting.
+
+----------------------------------------------------------------
+3. TRADITIONAL RESOURCES
+----------------------------------------------------------------
+List any documentation, textbooks, or reference sites used
+(e.g., cppreference.com, language specs, course notes).
+
+Sources:
+
+WebGL Phong shading demo
+https://www.cs.toronto.edu/~jacobson/phong-demo/
+
+OpenGL robot arm kinematics 3D simulation demo
+https://www.reddit.com/r/opengl/comments/l6hz19/opengl_robot_arm_kinematics_3d_simulation_demo_2/
+
+ResearchGate search for procedural 3D robotic arm kinematics and lighting
+https://www.researchgate.net/search.Search.html?query=Procedural+3D+Robotic+Arm+Kinematics+%26+Lighting&type=publication
+
+AI-Driven Virtual Robotic Arm Simulation via OpenCV and Inverse Kinematics
+https://www.researchgate.net/publication/404677691_AI-Driven_Virtual_Robotic_Arm_Simulation_via_OpenCV_and_Inverse_Kinematics
+
+----------------------------------------------------------------
+4. GENERATIVE AI PROCESS & REFLECTION
+----------------------------------------------------------------
+Usage of GenAI must be explicitly documented and reflected upon.
+Credit will only be given for work that is demonstrably your own.
+
+Did you use Generative AI for this assignment? [ YES ]
+
+a. TOOLS & VERSIONS USED (e.g., ChatGPT 4o, Claude 3.5 Sonnet):
+Grok 4.7 High on Cursor IDE.
+
+b. ACTUAL USE vs. INTENT:
+Describe how you actually used the tool(s). Did your usage align
+with your initial learning intent? State specific prompts or
+use-cases (e.g., explaining error messages, brainstorming edge
+cases, reviewing conceptual understanding).
+
+Yes, my usage aligned with my initial learning intent. I used
+the GenAI exactly as I mentioned in the "State briefly how you
+intended GenAI to support your learning"
+
+Prompt: Double check the draw overload code. I think I have
+some syntax erros and spelling errors which is stopping my
+code from compiling
+
+Prompt: Can you correctly update the declaration and reflection
+file and fix the spelling in the file name.
+
+Prompt: Now what else is left to do?
+
+Prompt: Update the draw function in mesh.cpp but do not write
+the code in editor. Just give me the updated code in chat and
+explain what i was doing wrong.
+
+Prompt: Now lets start coding. I will work on different parts.
+
+1. Generate the arm geometry procedurally.
+2. Build the kinematic chain and joint interactions.
+3. Set up the camera.
+4. Add texturing and Phong lighting.
+
+Use cases: explaining debugging issues, brainstorming, planning,
+reviewing concep understanding.
+
+c. CRITICAL EVALUATION:
+How did you verify the accuracy of the outputs generated by the AI?
+Describe any instances where the tool gave incorrect, suboptimal,
+or misleading guidance, and how you corrected it.
+
+I verified the outside my building/compiling and testing the code
+again and again and tested it in real time on whatever part the
+GenAI worked on.
+
+I know the requirements and what exactly i am building which made
+the testing easy.
+
+GenAI gave me the wrong outputs for the draw function. It gave a
+code segment in the chat which put a declaration where a
+definition goes, and i tested it and fixed it myself.
+
+d. INFLUENCE ON FINAL SUBMISSION & LEARNING:
+Reflect on how using (or intentionally avoiding) GenAI influenced
+your final submission. How did this tool impact your understanding
+of the core concepts in this assignment compared to working
+through them without AI assistance?
+
+As mentioned above, I always dedude the problem and solution
+myself. Even without GenAI, since highschool, I am using GitHub
+repos and different stack overflow pages which really clears my
+understanding of different concepts.
+
+Without, GenAI, the work would be a bit slower and i would spend
+a lot of time on formatting and finding small problems such as
+fixing the spelling mistakes which is blocking my code from
+compiling.
+
+================================================================
