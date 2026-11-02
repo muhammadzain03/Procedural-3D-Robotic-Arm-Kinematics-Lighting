@@ -193,8 +193,15 @@ void Mesh::applyTransform(const glm::mat4& transform)
 
 void Mesh::draw(const glm::mat4& view, const glm::mat4& projection) const
 {
+    draw(model, view, projection);
+}
+
+void Mesh::draw(const glm::mat4& modelMatrix,
+                const glm::mat4& view,
+                const glm::mat4& projection) const
+{
     shader.use();
-    shader.setMatrix4("model", model);
+    shader.setMatrix4("model", modelMatrix);
     shader.setMatrix4("view", view);
     shader.setMatrix4("projection", projection);
     shader.setVector3("materialAmbient", material.ambient);

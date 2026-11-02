@@ -59,6 +59,11 @@ public:
     // The shader must provide the attributes and uniforms used by mesh.vert/frag.
     void draw(const glm::mat4& view, const glm::mat4& projection) const;
 
+    // if we change the existing signature (the existing draw constructor above), cube.cpp and sphere.cpp 
+    // stop compiling, since they call draw(view, projection) and applyTransform
+    // So we add a second draw rather than modifying the existing one:
+    void draw(const glm::mat4& modelMatrix, const glm::mat4& view, const glm::mat4& projection) const;
+
 private:
     Shader shader;
     Material material;
