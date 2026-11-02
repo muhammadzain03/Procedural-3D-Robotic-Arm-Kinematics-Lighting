@@ -99,25 +99,29 @@ Yes, my usage aligned with my initial learning intent. I used
 the GenAI exactly as I mentioned in the "State briefly how you
 intended GenAI to support your learning"
 
-Prompt: Double check the draw overload code. I think I have
-some syntax erros and spelling errors which is stopping my
-code from compiling
+Prompt: Check the extra draw. I put a declaration where the
+definition goes, so it will not compile. Tell me where each
+piece goes, and do not change my comments in mesh.h.
 
-Prompt: Can you correctly update the declaration and reflection
-file and fix the spelling in the file name.
+Prompt: Update the traditional sources and fix the spelling
+in the declaration file name. Keep my wording, and focus it
+on this assignment.
 
-Prompt: Now what else is left to do?
+Prompt: For the unit shapes, tell me what to change and where.
+Give me the code in the chat. I will write it myself.
 
-Prompt: Update the draw function in mesh.cpp but do not write
-the code in editor. Just give me the updated code in chat and
-explain what i was doing wrong.
+Prompt: Test geometry.cpp, then check it again. The sphere
+indices were still out of range.
 
-Prompt: Now lets start coding. I will work on different parts.
+Prompt: Do I need the checkerboard and marble images? Clean
+the starter files so this folder is only Homework 3.
 
-1. Generate the arm geometry procedurally.
-2. Build the kinematic chain and joint interactions.
-3. Set up the camera.
-4. Add texturing and Phong lighting.
+Prompt: Add empty robot.cpp and robot.h so I can set up
+CMakeLists.txt. Do not write the arm code in them.
+
+Prompt: Add the robot target, copy the shaders and textures
+after the build, and render one lit cylinder so I can check
+the smooth wall and the flat caps.
 
 Use cases: explaining debugging issues, brainstorming, planning,
 reviewing concep understanding.
