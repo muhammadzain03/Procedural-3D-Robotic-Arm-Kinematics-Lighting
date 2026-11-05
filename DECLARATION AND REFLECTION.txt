@@ -142,6 +142,15 @@ GenAI gave me the wrong outputs for the draw function. It gave a
 code segment in the chat which put a declaration where a
 definition goes, and i tested it and fixed it myself.
 
+The cylinder caps were another one. The fans already wound
+opposite each other, and the comment said that made them face
+outward, but both fans were flipped relative to the wall. The
+normals were right and culling was off, so the caps still drew
+and the bug stayed hidden. I swapped the last two indices in
+each fan, turned on face culling, and checked that the caps
+stayed visible. If they had vanished, the swap would have been
+the wrong pair.
+
 d. INFLUENCE ON FINAL SUBMISSION & LEARNING:
 Reflect on how using (or intentionally avoiding) GenAI influenced
 your final submission. How did this tool impact your understanding

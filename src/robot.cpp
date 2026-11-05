@@ -6,9 +6,11 @@
 #include "mesh.h"
 #include <cmath>
 
+#include <SFML/System/Clock.hpp>
 #include <SFML/Window.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <algorithm>
 #include <exception>
 #include <filesystem>
 #include <iostream>
@@ -19,8 +21,8 @@ int main(int argc, char* argv[])
 {
     try {
         /*
-        Opens an 900x700 window using SFML configured for OpenGL 
-        profile with 24-bit depth buffer. 
+        Opens a 900x700 window using SFML configured for an OpenGL
+        4.0 Core profile with a 24-bit depth buffer.
         */
         sf::ContextSettings settings;
         settings.majorVersion = 4;
@@ -29,7 +31,7 @@ int main(int argc, char* argv[])
         settings.depthBits = 24;    // Why 24? So, the 3D object know whats infront of what...
 
         sf::Window window(sf::VideoMode({900, 700}),
-                          "Unit cylinder",
+                          "Robotic arm",
                           sf::Style::Default,
                           sf::State::Windowed,
                           settings);
@@ -41,7 +43,9 @@ int main(int argc, char* argv[])
 
         // Makes OpenGL keep the closer surface when two triangles overlap, so the back of the cylinder doesn't draw through the front.
         glEnable(GL_DEPTH_TEST);
-        // Sets the BG color used the next time window is created.
+        // Drops triangles that face away. The caps and walls have to wind outward or they vanish.
+        glEnable(GL_CULL_FACE);
+        // Sets the colour glClear fills the window with every frame.
         glClearColor(0.12f, 0.13f, 0.15f, 1.0f); 
 
         const Geometry cylinderShape = makeCylinder(48); // 48 --> How many slices go around the wall.
@@ -76,33 +80,27 @@ int main(int argc, char* argv[])
 
         const float nearPlane = 0.1f;
         const float farPlane = 60.0f;
-        // Cylinder's starting rotation aroudn Y (in radians) - Changes later by left and right keys
-        float yaw = 0.6f;
         float baseDeg = 0.0f;
         float shoulderDeg = 0.0f;
         float elbowDeg = 0.0f;
         float wristDeg = 0.0f;
-        float gripDeg = 0.0f;
-        
+        float jawDeg = 0.0f;
+        const float speed = 75.0f;
+        sf::Clock frameClock;
+
         /*
-        The outer loop runs until the window closes. The inner loop empties SFML’s 
-        event queue. Closing the window, or pressing Escape, ends the program. A 
-        resize updates the drawable area to the new width and height. Left and 
-        right add or subtract 0.15 radians from yaw, about 8.6 degrees per press.
+        The outer loop runs until the window closes. The inner loop empties SFML’s
+        event queue. Closing the window, or pressing Escape, ends the program. The
+        viewport is set from the window size every frame. Joint keys are polled
+        each frame so the arm moves continuously.
         */
         while (window.isOpen()) {
             while (const std::optional event = window.pollEvent()) {
                 if (event->is<sf::Event::Closed>()) {
                     window.close();
-                } else if (const auto* resized = event->getIf<sf::Event::Resized>()) {
-                    glViewport(0, 0, static_cast<GLsizei>(resized->size.x), static_cast<GLsizei>(resized->size.y));
                 } else if (const auto* key = event->getIf<sf::Event::KeyPressed>()) {
                     if (key->code == sf::Keyboard::Key::Escape) {
                         window.close();
-                    } else if (key->code == sf::Keyboard::Key::Left) {
-                        yaw += 0.15f;
-                    } else if (key->code == sf::Keyboard::Key::Right) {
-                        yaw -= 0.15f;
                     }
                 }
             }
@@ -118,13 +116,67 @@ int main(int argc, char* argv[])
                 ? 1.0f
                 : static_cast<float>(size.x) / static_cast<float>(size.y);
             const glm::mat4 projection = glm::perspective(fieldOfView, aspect, nearPlane, farPlane);
-            const glm::mat4 model = glm::rotate(glm::mat4(1.0f), yaw, glm::vec3(0.0f, 1.0f, 0.0f));
+            const float dt = frameClock.restart().asSeconds();
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) ||
+                sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) {
+                baseDeg -= speed * dt;
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D) ||
+                sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) {
+                baseDeg += speed * dt;
+            }
+            baseDeg = std::fmod(baseDeg, 360.0f);
+            if (baseDeg < 0.0f) {
+                baseDeg += 360.0f;
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) {
+                shoulderDeg += speed * dt;
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) {
+                shoulderDeg -= speed * dt;
+            }
+            shoulderDeg = std::clamp(shoulderDeg, -10.0f, 95.0f);
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) {
+                elbowDeg += speed * dt;
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F)) {
+                elbowDeg -= speed * dt;
+            }
+            elbowDeg = std::clamp(elbowDeg, -150.0f, 10.0f);
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::T)) {
+                wristDeg += speed * dt;
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::G)) {
+                wristDeg -= speed * dt;
+            }
+            wristDeg = std::clamp(wristDeg, -90.0f, 90.0f);
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::O)) {
+                jawDeg += speed * dt;
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::C)) {
+                jawDeg -= speed * dt;
+            }
+            // Positive opens past parallel. The inner faces meet near -22.6°,
+            // so -22° stops just short of the tips crossing.
+            jawDeg = std::clamp(jawDeg, -22.0f, 45.0f);
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
+                baseDeg = 0.0f;
+                shoulderDeg = 0.0f;
+                elbowDeg = 0.0f;
+                wristDeg = 0.0f;
+                jawDeg = 0.0f;
+            }
 
             /*
             Above code explaination
             glm::perspective is GLM’s projection matrix: a 45° vertical field of view,
-            that aspect, and near and far planes at 0.1 and 20. model is a fresh rotation
-            around Y by the current yaw.
+            that aspect, and near and far planes at 0.1 and 60.
             */
 
             // glViewport matches the drawing rectangle to the window.
@@ -165,7 +217,7 @@ int main(int argc, char* argv[])
                                         glm::vec3(arm::wristRadius)), view, projection);
             box.draw(wrist
                          * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, arm::palmLength * 0.5f, 0.0f))
-                         * glm::scale(glm::mat4(1.0f), glm::vec3(arm::palmThinkness, arm::palmLength, arm::palmHeight)),
+                         * glm::scale(glm::mat4(1.0f), glm::vec3(arm::palmThickness, arm::palmLength, arm::palmHeight)),
                      view, projection);
 
             for (float side : {1.0f, -1.0f}) {
@@ -177,7 +229,7 @@ int main(int argc, char* argv[])
                 sphere.draw(fingerJoint * glm::scale(glm::mat4(1.0f),
                                     glm::vec3(arm::fingerJointRadius)), view, projection);
 
-                glm::mat4 finger = glm::rotate(fingerJoint, glm::radians(-side * gripDeg), xAxis);
+                glm::mat4 finger = glm::rotate(fingerJoint, glm::radians(side * jawDeg), xAxis);
                 box.draw(finger
                              * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, arm::fingerLength * 0.5f, 0.0f))
                              * glm::scale(glm::mat4(1.0f), glm::vec3(arm::fingerThickness, arm::fingerLength, arm::fingerHeight)),

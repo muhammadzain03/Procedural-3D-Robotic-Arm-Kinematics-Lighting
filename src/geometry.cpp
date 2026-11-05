@@ -3,16 +3,16 @@
 #include <cmath>
 #include <vector>
 
-namespace{
+namespace {
     constexpr float pi = 3.14159265358979323846f;
-}
 
-Vertex makeVertex(const glm::vec3& position, const glm::vec3& normal, const glm::vec2& texCoord){
-    Vertex vertex;
-    vertex.position = position;
-    vertex.normal = normal;
-    vertex.texCoord = texCoord;
-    return vertex;
+    Vertex makeVertex(const glm::vec3& position, const glm::vec3& normal, const glm::vec2& texCoord) {
+        Vertex vertex;
+        vertex.position = position;
+        vertex.normal = normal;
+        vertex.texCoord = texCoord;
+        return vertex;
+    }
 }
 
 Geometry makeCylinder(unsigned int segments)
@@ -55,7 +55,7 @@ Geometry makeCylinder(unsigned int segments)
     const unsigned int bottomRim = bottomCenter + 1;
     for (unsigned int i = 0; i < segments; ++i) {
         geometry.indices.insert(geometry.indices.end(),
-                                {bottomCenter, bottomRim + i + 1, bottomRim + i});
+                                {bottomCenter, bottomRim + i, bottomRim + i + 1});
     }
     // Top cap. Flat normal pointing up. Centre is at y = 1.
     const unsigned int topCenter = static_cast<unsigned int>(geometry.vertices.size());
@@ -73,7 +73,7 @@ Geometry makeCylinder(unsigned int segments)
     const unsigned int topRim = topCenter + 1;
     for (unsigned int i = 0; i < segments; ++i) {
         geometry.indices.insert(geometry.indices.end(),
-                                {topCenter, topRim + i, topRim + i + 1});
+                                {topCenter, topRim + i + 1, topRim + i});
     }
     return geometry;
 }
@@ -120,7 +120,7 @@ Geometry makeBox(){
 Geometry makeSphere(unsigned int slices, unsigned int stacks){
     Geometry geometry;
     geometry.vertices.reserve(static_cast<std::size_t>(stacks + 1) * (slices + 1));
-    geometry.indices.reserve(static_cast<std::size_t>(stacks) * (slices + 6));
+    geometry.indices.reserve(static_cast<std::size_t>(stacks) * slices * 6);
 
     for (unsigned int stack = 0; stack <= stacks; ++stack){
         const float v = static_cast<float>(stack) / static_cast<float>(stacks);

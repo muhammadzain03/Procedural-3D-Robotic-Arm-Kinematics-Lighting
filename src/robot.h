@@ -3,7 +3,7 @@
 namespace arm {
     constexpr float baseHeight = 0.70f;
     constexpr float baseRadius = 1.10f;
-    constexpr float dicGap = 0.001f;
+    constexpr float discGap = 0.001f;
     
     constexpr float shoulderRadius = 0.24f;
     constexpr float upperArmLength = 2.80f;
@@ -18,7 +18,7 @@ namespace arm {
     // After scaling the palm to 0.82 along Y, we translate it
     // by palmLength * 0.5f (0.41) so it starts at the wrist and ends at y = 0.82.
     constexpr float palmLength = 0.82f;     // y-axis
-    constexpr float palmThinkness = 0.36f;  // x-axis
+    constexpr float palmThickness = 0.36f;  // x-axis
     constexpr float palmHeight = 0.68f;     // z-axis   The stem sits at +-0.34 (half of PalmHeight)
 
     constexpr float stemLength = 0.58f;

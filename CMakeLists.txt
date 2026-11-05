@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(CMakeSFMLProject LANGUAGES CXX)
+project(RoboticArm LANGUAGES CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -28,7 +28,7 @@ FetchContent_MakeAvailable(glm)
 
 FetchContent_Declare(stb
     GIT_REPOSITORY https://github.com/nothings/stb.git
-    GIT_SHALLOW ON
+    GIT_TAG d14d46f6b44456eb88beac58cba833a4135d4c89
     EXCLUDE_FROM_ALL)
 FetchContent_MakeAvailable(stb)
 
