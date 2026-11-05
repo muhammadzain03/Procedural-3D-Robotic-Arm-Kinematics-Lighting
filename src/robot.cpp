@@ -44,19 +44,20 @@ int main(int argc, char* argv[])
         // Sets the BG color used the next time window is created.
         glClearColor(0.12f, 0.13f, 0.15f, 1.0f); 
 
-        const Geometry cylinder = makeCylinder(48); // 48 --> How many slices go around the wall.
+        const Geometry cylinderShape = makeCylinder(48); // 48 --> How many slices go around the wall.
+        const Geometry sphereShape = makeSphere(32, 16);
+        const Geometry boxShape = makeBox();
         const std::filesystem::path shaderDirectory =
             std::filesystem::absolute(argv[0]).parent_path() / "shaders";   // argv[0] is the path of robot.exe
 
         Material material;
         material.lightingEnabled = true;    // turns the Phong shading on
 
-        Mesh mesh(cylinder.vertices,
-                  cylinder.indices,
-                  (shaderDirectory / "mesh.vert").string(),
-                  (shaderDirectory / "mesh.frag").string(),
-                  {},
-                  material);
+        const std::string vertexShader = (shaderDirectory / "mesh.vert").string();
+        const std::string fragmentShader = (shaderDirectory / "mesh.frag").string();
+        Mesh cylinder(cylinderShape.vertices, cylinderShape.indices, vertexShader, fragmentShader, {}, material);
+        Mesh sphere(sphereShape.vertices, sphereShape.indices, vertexShader, fragmentShader, {}, material);
+        Mesh box(boxShape.vertices, boxShape.indices, vertexShader, fragmentShader, {}, material);
         
         // --- Dynamic Camera Setup ---
         // 8 / sin(22.5°) is about 20.9. That is how far back a 45° camera must sit to fit a sphere of radius 8.
@@ -77,6 +78,11 @@ int main(int argc, char* argv[])
         const float farPlane = 60.0f;
         // Cylinder's starting rotation aroudn Y (in radians) - Changes later by left and right keys
         float yaw = 0.6f;
+        float baseDeg = 0.0f;
+        float shoulderDeg = 0.0f;
+        float elbowDeg = 0.0f;
+        float wristDeg = 0.0f;
+        float gripDeg = 0.0f;
         
         /*
         The outer loop runs until the window closes. The inner loop empties SFML’s 
@@ -125,7 +131,59 @@ int main(int argc, char* argv[])
             glViewport(0, 0, static_cast<GLsizei>(size.x), static_cast<GLsizei>(size.y));
             // glClear wipes the colour buffer and the depth buffer, so the last frame is gone.
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            mesh.draw(model, view, projection);
+
+            // The Kinematics Chain
+            const glm::vec3 xAxis(1.0f, 0.0f, 0.0f);
+            const glm::vec3 yAxis(0.0f, 1.0f, 0.0f);
+
+            glm::mat4 base = glm::rotate(glm::mat4(1.0f), glm::radians(baseDeg), yAxis);
+            cylinder.draw(base * glm::scale(glm::mat4(1.0f),
+                                        glm::vec3(arm::baseRadius, arm::baseHeight, arm::baseRadius)), view, projection);
+
+            // (Below) glm::rotate(glm::translate(parent, offset), angle, axis)
+            // is parent * T * R. The shoulder axis is X, (1, 0, 0)
+            glm::mat4 shoulder = glm::rotate(
+                glm::translate(base, glm::vec3(0.0f, arm::baseHeight, 0.0f)),
+                glm::radians(shoulderDeg), xAxis);
+            sphere.draw(shoulder * glm::scale(glm::mat4(1.0f),
+                                        glm::vec3(arm::shoulderRadius)), view, projection);
+            cylinder.draw(shoulder * glm::scale(glm::mat4(1.0f),
+                                        glm::vec3(arm::upperArmRadius, arm::upperArmLength, arm::upperArmRadius)), view, projection);
+
+            glm::mat4 elbow = glm::rotate(
+                glm::translate(shoulder, glm::vec3(0.0f, arm::upperArmLength, 0.0f)),
+                glm::radians(elbowDeg), xAxis);
+            sphere.draw(elbow * glm::scale(glm::mat4(1.0f),
+                                        glm::vec3(arm::elbowRadius)), view, projection);
+            cylinder.draw(elbow * glm::scale(glm::mat4(1.0f),
+                                        glm::vec3(arm::forearmRadius, arm::forearmLength, arm::forearmRadius)), view, projection);
+
+            glm::mat4 wrist = glm::rotate(
+                glm::translate(elbow, glm::vec3(0.0f, arm::forearmLength, 0.0f)),
+                glm::radians(wristDeg), xAxis);
+            sphere.draw(wrist * glm::scale(glm::mat4(1.0f),
+                                        glm::vec3(arm::wristRadius)), view, projection);
+            box.draw(wrist
+                         * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, arm::palmLength * 0.5f, 0.0f))
+                         * glm::scale(glm::mat4(1.0f), glm::vec3(arm::palmThinkness, arm::palmLength, arm::palmHeight)),
+                     view, projection);
+
+            for (float side : {1.0f, -1.0f}) {
+                glm::mat4 stem = glm::translate(wrist, glm::vec3(0.0f, arm::palmLength, side * arm::palmHeight * 0.5f));
+                cylinder.draw(stem * glm::scale(glm::mat4(1.0f),
+                                    glm::vec3(arm::stemRadius, arm::stemLength, arm::stemRadius)), view, projection);
+
+                glm::mat4 fingerJoint = glm::translate(stem, glm::vec3(0.0f, arm::stemLength, 0.0f));
+                sphere.draw(fingerJoint * glm::scale(glm::mat4(1.0f),
+                                    glm::vec3(arm::fingerJointRadius)), view, projection);
+
+                glm::mat4 finger = glm::rotate(fingerJoint, glm::radians(-side * gripDeg), xAxis);
+                box.draw(finger
+                             * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, arm::fingerLength * 0.5f, 0.0f))
+                             * glm::scale(glm::mat4(1.0f), glm::vec3(arm::fingerThickness, arm::fingerLength, arm::fingerHeight)),
+                         view, projection);
+            }
+
             // window.display puts the finished image on screen.
             window.display();
         }    
