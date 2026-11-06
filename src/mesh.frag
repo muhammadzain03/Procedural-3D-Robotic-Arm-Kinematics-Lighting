@@ -30,10 +30,10 @@ void main() {
     vec3 lightDirection = normalize(lightPositionView - fragmentPosition);
     vec3 viewDirection = normalize(-fragmentPosition);
     float diffuseStrength = max(dot(normalDirection, lightDirection), 0.0);
-    float specularStrength = pow(max(dot(viewDirection,
-                                         reflect(-lightDirection, normalDirection)),
-                                     0.0),
-                                materialShininess);
+    float specularStrength = diffuseStrength > 0.0
+        ? pow(max(dot(viewDirection, reflect(-lightDirection, normalDirection)), 0.0),
+              materialShininess)
+        : 0.0;
     vec3 litColor = baseColor * (materialAmbient + materialDiffuse * diffuseStrength)
         + materialSpecular * specularStrength;
     outputColor = vec4(litColor, vertexColor.a * texel.a);
