@@ -15,8 +15,7 @@ namespace {
     }
 }
 
-Geometry makeCylinder(unsigned int segments)
-{
+Geometry makeCylinder(unsigned int segments, float aroundRepeats, float alongRepeats) {
     Geometry geometry;
     // Side wall. i runs through segments inclusive so the last column
     // repeats the first position but carries u = 1, which closes the seam.
@@ -24,10 +23,10 @@ Geometry makeCylinder(unsigned int segments)
         const float u = static_cast<float>(i) / static_cast<float>(segments);
         const float theta = 2.0f * pi * u;
         const glm::vec3 dir(std::cos(theta), 0.0f, std::sin(theta));
-        geometry.vertices.push_back(makeVertex(dir, dir, {u, 0.0f}));
+        geometry.vertices.push_back(makeVertex(dir, dir, {u * aroundRepeats, 0.0f}));
         geometry.vertices.push_back(makeVertex(dir + glm::vec3(0.0f, 1.0f, 0.0f),
                                                dir,
-                                               {u, 1.0f}));
+                                               {u * aroundRepeats, alongRepeats}));
     }
     for (unsigned int i = 0; i < segments; ++i) {
         const unsigned int bottom0 = i * 2;
@@ -79,7 +78,7 @@ Geometry makeCylinder(unsigned int segments)
 }
 
 
-Geometry makeBox(){
+Geometry makeBox() {
     Geometry geometry;
 
     // 6 faces, 4 vertices each. Corners are duplicated because each face
@@ -117,7 +116,7 @@ Geometry makeBox(){
 }
 
 
-Geometry makeSphere(unsigned int slices, unsigned int stacks){
+Geometry makeSphere(unsigned int slices, unsigned int stacks) {
     Geometry geometry;
     geometry.vertices.reserve(static_cast<std::size_t>(stacks + 1) * (slices + 1));
     geometry.indices.reserve(static_cast<std::size_t>(stacks) * slices * 6);
@@ -150,5 +149,28 @@ Geometry makeSphere(unsigned int slices, unsigned int stacks){
         }
     }
 
+    return geometry;
+}
+
+Geometry makeDisc(unsigned int segments) {
+    Geometry geometry;
+    // Unit disc on the XZ plane at y = 0. Normal is +Y.
+    // Fan order matches the cylinder top cap
+    geometry.vertices.push_back(makeVertex({0.0f, 0.0f, 0.0f},
+                                           {0.0f, 1.0f, 0.0f},
+                                           {0.5f, 0.5f}));
+    for (unsigned int i = 0; i <= segments; ++i) {
+        const float theta = 2.0f * pi * static_cast<float>(i) / static_cast<float>(segments);
+        const float c = std::cos(theta);
+        const float s = std::sin(theta);
+        geometry.vertices.push_back(makeVertex({c, 0.0f, s},
+                                               {0.0f, 1.0f, 0.0f},
+                                               {0.5f + 0.5f * c, 0.5f + 0.5f * s}));
+    }
+    const unsigned int rim = 1;
+    for (unsigned int i = 0; i< segments; ++i) {
+        geometry.indices.insert(geometry.indices.end(),
+                               {0, rim + i + 1, rim + i});
+    }
     return geometry;
 }

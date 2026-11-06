@@ -3,7 +3,7 @@
 namespace arm {
     constexpr float baseHeight = 0.70f;
     constexpr float baseRadius = 1.10f;
-    constexpr float discGap = 0.001f;
+    constexpr float discGap = 0.005f;
     
     constexpr float shoulderRadius = 0.24f;
     constexpr float upperArmLength = 2.80f;

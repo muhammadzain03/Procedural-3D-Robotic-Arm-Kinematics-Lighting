@@ -3,8 +3,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#include <glm/gtc/matrix_transform.hpp>
-
 #include <algorithm>
 #include <cstddef>
 #include <limits>
@@ -186,24 +184,16 @@ Mesh::~Mesh()
     }
 }
 
-void Mesh::applyTransform(const glm::mat4& transform)
-{
-    model *= transform;
-}
-
-void Mesh::draw(const glm::mat4& view, const glm::mat4& projection) const
-{
-    draw(model, view, projection);
-}
-
 void Mesh::draw(const glm::mat4& modelMatrix,
                 const glm::mat4& view,
-                const glm::mat4& projection) const
+                const glm::mat4& projection,
+                const glm::vec3& lightPositionView) const
 {
     shader.use();
     shader.setMatrix4("model", modelMatrix);
     shader.setMatrix4("view", view);
     shader.setMatrix4("projection", projection);
+    shader.setVector3("lightPositionView", lightPositionView);
     shader.setVector3("materialAmbient", material.ambient);
     shader.setVector3("materialDiffuse", material.diffuse);
     shader.setVector3("materialSpecular", material.specular);

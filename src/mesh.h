@@ -51,18 +51,13 @@ public:
     Mesh(const Mesh&) = delete;
     Mesh& operator=(const Mesh&) = delete;
 
-    // Applies an affine transform in mesh-local coordinates. Repeated transforms
-    // are post-multiplied onto the current model transform.
-    void applyTransform(const glm::mat4& transform);
-
-    // Draws the indexed triangles using the supplied view and projection matrices.
-    // The shader must provide the attributes and uniforms used by mesh.vert/frag.
-    void draw(const glm::mat4& view, const glm::mat4& projection) const;
-
-    // if we change the existing signature (the existing draw constructor above), cube.cpp and sphere.cpp 
-    // stop compiling, since they call draw(view, projection) and applyTransform
-    // So we add a second draw rather than modifying the existing one:
-    void draw(const glm::mat4& modelMatrix, const glm::mat4& view, const glm::mat4& projection) const;
+    // Draws the indexed triangles. The model matrix is an argument, so a draw
+    // does not change the mesh. The shader must provide the attributes and
+    // uniforms used by mesh.vert and mesh.frag.
+    void draw(const glm::mat4& modelMatrix,
+              const glm::mat4& view,
+              const glm::mat4& projection,
+              const glm::vec3& lightPositionView) const;
 
 private:
     Shader shader;
@@ -72,6 +67,4 @@ private:
     GLuint indexBuffer = 0;
     GLuint texture = 0;
     GLsizei indexCount = 0;
-    // Object-to-world transform, updated by applyTransform and sent to the vertex shader.
-    glm::mat4 model{1.0f};
 };

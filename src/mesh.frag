@@ -12,6 +12,7 @@ uniform float materialShininess;
 uniform int useLighting;
 uniform sampler2D diffuseTexture;
 uniform int useTexture;
+uniform vec3 lightPositionView;
 
 out vec4 outputColor;
 
@@ -26,7 +27,7 @@ void main() {
     }
 
     vec3 normalDirection = normalize(fragmentNormal);
-    vec3 lightDirection = normalize(vec3(0.3, 0.5, 1.0));
+    vec3 lightDirection = normalize(lightPositionView - fragmentPosition);
     vec3 viewDirection = normalize(-fragmentPosition);
     float diffuseStrength = max(dot(normalDirection, lightDirection), 0.0);
     float specularStrength = pow(max(dot(viewDirection,
