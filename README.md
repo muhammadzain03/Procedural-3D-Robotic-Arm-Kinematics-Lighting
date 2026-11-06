@@ -1,8 +1,8 @@
 # Procedural 3D Robotic Arm
 
-CPSC 453 Homework 3. I built a kinematic arm from unit shapes in `src/geometry.cpp`, and I draw it with the shared mesh and shader code.
+CPSC 453 Homework 3. Built a kinematic arm from unit shapes in `src/geometry.cpp`, drawn with the shared mesh and shader code.
 
-SFML opens the window. OpenGL does the rendering. I left audio, networking, and SFML graphics off. GLAD loads OpenGL, and GLM supplies the matrices.
+SFML opens the window. OpenGL does the rendering. Left audio, networking, and SFML graphics off. GLAD loads OpenGL, and GLM supplies the matrices.
 
 ## Build
 
@@ -13,11 +13,11 @@ cmake -B build -G Ninja
 cmake --build build
 ```
 
-Run `build/bin/robot.exe`. The build copies my shaders and textures next to that executable. The program loads them from its own folder, so the working directory does not matter.
+Run `build/bin/robot.exe`. The build copies the shaders and textures next to that executable. The program loads them from its own folder, so the working directory does not matter.
 
 ## Controls
 
-I poll the keyboard every frame. A joint keeps moving while the key is held, at 75 degrees per second. Escape closes the window.
+The keyboard is polled every frame. A joint keeps moving while the key is held, at 75 degrees per second. Escape closes the window.
 
 | Joint | Keys | Range |
 |---|---|---|
@@ -28,7 +28,7 @@ I poll the keyboard every frame. A joint keeps moving while the key is held, at 
 | Gripper | O open, C close | −22° to +45° |
 | Reset | Space | every joint back to 0° |
 
-I stop the shoulder at 78°. The upper arm is a cylinder of radius 0.22, hinged at the centre of a base of radius 1.10. That cylinder is tangent to the rim of the base when
+The shoulder stops at 78°. The upper arm is a cylinder of radius 0.22, hinged at the centre of a base of radius 1.10. That cylinder is tangent to the rim of the base when
 
 ```
 cos α = 0.22 / 1.10 = 0.2
@@ -48,4 +48,4 @@ At 0° the jaws are parallel. Negative closes them until the inner faces nearly 
 - `assets/texture_arm_linkage.png` textures the upper arm and forearm.
 - `assets/texture_base_top.png` textures the top face of the base.
 
-I lift the base disc 0.005 above the cylinder cap. A gap of 0.001 is only a few times the depth resolution at this camera distance, and the two faces flickered. 0.005 is still too small to see, and it keeps them apart. The end caps of the arm links use the same texture as the walls, because one mesh holds one texture.
+The base disc sits 0.005 above the cylinder cap. A gap of 0.001 is only a few times the depth resolution at this camera distance, and the two faces flickered. 0.005 is still too small to see, and it keeps them apart. The end caps of the arm links use the same texture as the walls, because one mesh holds one texture.
