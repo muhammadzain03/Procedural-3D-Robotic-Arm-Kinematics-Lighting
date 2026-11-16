@@ -49,9 +49,9 @@ int main(int argc, char* argv[])
         glClearColor(0.12f, 0.13f, 0.15f, 1.0f); 
 
         const Geometry plainCylinderShape = makeCylinder(48); // 48 --> How many slices go around the wall.
-        const Geometry texturedCylinderShape = makeCylinder(48, 4.0f, 2.0f);
-        const Geometry discShape = makeDisc(48);
-        const Geometry sphereShape = makeSphere(32, 16);
+        const Geometry texturedCylinderShape = makeCylinder(48, 4.0f, 2.0f);    // 4x along and 2x around
+        const Geometry discShape = makeDisc(48);    // 48 slices
+        const Geometry sphereShape = makeSphere(32, 16); // 32 slices and 16 stacks
         const Geometry boxShape = makeBox();
 
         const std::filesystem::path shaderDirectory =
@@ -63,27 +63,32 @@ int main(int argc, char* argv[])
         const std::string linkageTexture = (assetDirectory / "texture_arm_linkage.png").string();
         const std::string baseTopTexture = (assetDirectory / "texture_base_top.png").string();
         
-        Material linkMaterial;
+        Material linkMaterial;  // the textured links
         linkMaterial.ambient = glm::vec3(0.15f);
-        linkMaterial.diffuse = glm::vec3(0.70f);
+        linkMaterial.diffuse = glm::vec3(0.70f);    // moderate
         linkMaterial.specular = glm::vec3(0.25f);
         linkMaterial.shininess = 32.0f;
         linkMaterial.lightingEnabled = true;
 
-        Material jointMaterial;
+        Material jointMaterial; // the spheres - darker body
         jointMaterial.ambient = glm::vec3(0.08f);
         jointMaterial.diffuse = glm::vec3(0.35f);
-        jointMaterial.specular = glm::vec3(0.80f);
-        jointMaterial.shininess = 96.0f;
+        jointMaterial.specular = glm::vec3(0.80f);  // strong
+        jointMaterial.shininess = 96.0f;    // more so the joints look shinier than the arms
         jointMaterial.lightingEnabled = true;
 
-        Material flatMaterial;
+        Material flatMaterial;  // base, stems, palm, fingers
         flatMaterial.ambient = glm::vec3(0.18f);
         flatMaterial.diffuse = glm::vec3(0.65f);
-        flatMaterial.specular = glm::vec3(0.05f);
+        flatMaterial.specular = glm::vec3(0.05f);   // almost no specular
         flatMaterial.shininess = 8.0f;
         flatMaterial.lightingEnabled = true;
 
+        /*
+        In the below lines, each "Mesh" uploads vertices and indices, compiles those two shaders,
+        and optionally binds a texture. "{}" means no texture.
+        The same "Mesh" is drawn many times. Drawing does not change it. 
+        */
         const std::string vertexShader = (shaderDirectory / "mesh.vert").string();
         const std::string fragmentShader = (shaderDirectory / "mesh.frag").string();
         Mesh cylinderPlain(plainCylinderShape.vertices, plainCylinderShape.indices, vertexShader, fragmentShader, {}, flatMaterial);
@@ -101,26 +106,29 @@ int main(int argc, char* argv[])
         const float fitDistance = modelRadius / std::sin(fieldOfView * 0.5f);
 
         // only a slight raise and a slight shift to the side, then it is scaled to that distance
-        const glm::vec3 viewDirection = glm::normalize(glm::vec3(0.30f, 0.15f, 1.0f));
+        const glm::vec3 viewDirection = glm::normalize(glm::vec3(0.30f, 0.15f, 1.0f)); // eye ends up near (6,6,20)
         // The eye lands near (6, 6, 20), so the base roll will be visible later instead of a flat front view.
         const glm::mat4 view = glm::lookAt(target + viewDirection * fitDistance,  // Eye
                                            target,
                                            glm::vec3(0.0f, 1.0f, 0.0f));    // Up
 
-        const glm::vec3 lightPositionWorld(4.0f, 9.0f, 6.0f);
-        const glm::vec3 lightPositionView = glm::vec3(view * glm::vec4(lightPositionWorld, 1.0f));
+        const glm::vec3 lightPositionWorld(4.0f, 9.0f, 6.0f);   // light position
+        const glm::vec3 lightPositionView = glm::vec3(view * glm::vec4(lightPositionWorld, 1.0f));  // 1 marks it as a point, so translation in the view matrix applies
 
         const float nearPlane = 0.1f;
         const float farPlane = 60.0f;
+
+        // Joint Angles --> in degrees
         float baseDeg = 0.0f;
         float shoulderDeg = 0.0f;
         float elbowDeg = 0.0f;
         float wristDeg = 0.0f;
         float jawDeg = 0.0f;
         const float speed = 75.0f;
-        sf::Clock frameClock;
+        sf::Clock frameClock;   // measures how long the last frame took so same speed on all devices
 
         /*
+        The Frame loop: events, input, clear
         The outer loop runs until the window closes. The inner loop empties SFML’s
         event queue. Closing the window, or pressing Escape, ends the program. The
         viewport is set from the window size every frame. Joint keys are polled
@@ -216,6 +224,8 @@ int main(int argc, char* argv[])
             const glm::vec3 xAxis(1.0f, 0.0f, 0.0f);
             const glm::vec3 yAxis(0.0f, 1.0f, 0.0f);
 
+            // 1) Base
+            // Rotate around "Y" by "baseDeg"
             glm::mat4 base = glm::rotate(glm::mat4(1.0f), glm::radians(baseDeg), yAxis);
             cylinderPlain.draw(base * glm::scale(glm::mat4(1.0f),
                                         glm::vec3(arm::baseRadius, arm::baseHeight, arm::baseRadius)), view, projection, lightPositionView);
@@ -225,9 +235,12 @@ int main(int argc, char* argv[])
                                   * glm::scale(glm::mat4(1.0f),
                                                glm::vec3(arm::baseRadius, 1.0f, arm::baseRadius)),
                               view, projection, lightPositionView);
-
+            
+            // 2) Shoulder
             // (Below) glm::rotate(glm::translate(parent, offset), angle, axis)
             // is parent * T * R. The shoulder axis is X, (1, 0, 0)
+            // Translate to the top of the base
+            // Then rotate around X by shoulderDeg
             glm::mat4 shoulder = glm::rotate(
                 glm::translate(base, glm::vec3(0.0f, arm::baseHeight, 0.0f)),
                 glm::radians(shoulderDeg), xAxis);
@@ -235,7 +248,10 @@ int main(int argc, char* argv[])
                                         glm::vec3(arm::shoulderRadius)), view, projection, lightPositionView);
             cylinderTextured.draw(shoulder * glm::scale(glm::mat4(1.0f),
                                         glm::vec3(arm::upperArmRadius, arm::upperArmLength, arm::upperArmRadius)), view, projection, lightPositionView);
-
+            
+            // 3) Elbow
+            // Translate along the upper arm by upperArmLength
+            // then rotate around X by elbowDeg
             glm::mat4 elbow = glm::rotate(
                 glm::translate(shoulder, glm::vec3(0.0f, arm::upperArmLength, 0.0f)),
                 glm::radians(elbowDeg), xAxis);
@@ -243,7 +259,10 @@ int main(int argc, char* argv[])
                                         glm::vec3(arm::elbowRadius)), view, projection, lightPositionView);
             cylinderTextured.draw(elbow * glm::scale(glm::mat4(1.0f),
                                         glm::vec3(arm::forearmRadius, arm::forearmLength, arm::forearmRadius)), view, projection, lightPositionView);
-
+            
+            // 4) Wrist
+            // Translate along the forArmLength
+            // then rotate aroudn X by wristDeg
             glm::mat4 wrist = glm::rotate(
                 glm::translate(elbow, glm::vec3(0.0f, arm::forearmLength, 0.0f)),
                 glm::radians(wristDeg), xAxis);
@@ -253,8 +272,10 @@ int main(int argc, char* argv[])
                          * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, arm::palmLength * 0.5f, 0.0f))
                          * glm::scale(glm::mat4(1.0f), glm::vec3(arm::palmThickness, arm::palmLength, arm::palmHeight)),
                      view, projection, lightPositionView);
-
-            for (float side : {1.0f, -1.0f}) {
+            
+            // 5) Grippers
+            // 
+            for (float side : {1.0f, -1.0f}) {  // loop runs twice
                 glm::mat4 stem = glm::translate(wrist, glm::vec3(0.0f, arm::palmLength, side * arm::palmHeight * 0.5f));
                 cylinderPlain.draw(stem * glm::scale(glm::mat4(1.0f),
                                     glm::vec3(arm::stemRadius, arm::stemLength, arm::stemRadius)), view, projection, lightPositionView);
